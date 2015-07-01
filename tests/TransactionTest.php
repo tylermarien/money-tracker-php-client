@@ -1,68 +1,64 @@
 <?php
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
+namespace MoneyTrackerPhpClient\Tests;
 
 use MoneyTrackerPhpClient\Transaction;
 
-class TransactionTest extends PHPUnit_Framework_TestCase
+class TransactionTest extends TestCase
 {
-    private $transaction;
 
-    public function setUp()
+    public function createTransaction($attributes = array())
     {
-        parent::setUp();
+        $faker = \Faker\Factory::create();
 
-        $transactions = [
-            [
-                'id' => 1,
-                'description' => 'Transaction 1',
-                'debit' => '12.1221',
-                'credit' => '0.0000'
-            ],
-            [
-                'id' => 2,
-                'description' => 'Transaction 2',
-                'debit' => '12.1221',
-                'credit' => '0.0000'
-            ]
+        return [
+            'id' => isset($attributes['id']) ? $attributes['id'] : $faker->unique()->randomNumber,
+            'description' => isset($attributes['description']) ? $attributes['description'] : implode(' ', $faker->words),
+            'debit' => isset($attributes['debit']) ? $attributes['debit'] : number_format($faker->randomFloat, 2, '.', ''),
+            'credit' =>isset($attributes['credit']) ? $attributes['credit'] : number_format($faker->randomFloat, 2, '.', ''),
         ];
-
-        $client = $this->mockGuzzle($this->createResponse($transactions));
-
-        $this->transaction = new Transaction($client);
     }
 
-    public function createResponse($body, $code = 200)
+    public function createApi($body, $code = 200)
     {
-        return new Response($code, ['Content-Type' => 'application/json'], json_encode($body));
+        return new Transaction($this->mockGuzzle($this->createResponse($body, $code)));
     }
-
-    public function mockGuzzle(Response $response)
-    {
-        $mock = new MockHandler([$response]);
-        $handler = HandlerStack::create($mock);
-
-        return new Client(['handler' => $handler]);
-    }
-
-    // public function createTransaction($attributes)
-    // {
-    //     return [
-    //         'id' => $attribute,
-    //         'description' => 'Transaction 2',
-    //         'debit' => '12.1221',
-    //         'credit' => '0.0000'
-    //     ]
-    // }
 
     public function testAll()
     {
-        $transactions = $this->transaction->all();
+        $api = $this->createApi([
+            $this->createTransaction(),
+            $this->createTransaction()
+        ]);
 
-        $this->assertEquals(2, count($transactions));
+        $this->assertEquals(2, count($api->all()));
+    }
+
+    public function testCreate()
+    {
+        $transaction = $this->createTransaction();
+
+        $api = $this->createApi($transaction, 201);
+
+        $this->assertJsonEquals($transaction, $api->create($transaction));
+    }
+    
+    public function testFind()
+    {
+        $transaction = $this->createTransaction(['id' => 1]);
+
+        $api = $this->createApi($transaction);
+
+        $this->assertJsonEquals($transaction, $api->find(1));
+    }
+
+    /**
+     * @expectedException OutOfBoundsException
+     */
+    public function testFindWhenReturns404()
+    {
+        $api = $this->createApi('', 404);
+        $api->find(1);
     }
 
 }
