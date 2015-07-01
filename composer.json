@@ -1,0 +1,21 @@
+{
+    "name": "tylermarien/money-tracker-php-client",
+    "description": "PHP Client for Money Tracker API",
+    "require": {
+        "guzzlehttp/guzzle": "^6.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.7"
+    },
+    "authors": [
+        {
+            "name": "Tyler Marien",
+            "email": "tyler.marien@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MoneyTrackerPhpClient\\": "src/"
+        }
+    },
+}
