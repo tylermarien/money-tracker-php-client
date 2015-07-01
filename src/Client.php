@@ -7,15 +7,17 @@ use GuzzleHttp\Client as Guzzle;
 class Client
 {
     const URL = 'http://money-tracker-api.app';
+    const TIMEOUT = 2.0;
+    const HEADERS = ['Accept' => 'application/json'];
 
     private $http;
 
     public function __construct()
     {
         $this->http = new Guzzle([
-            'base_uri' => self::URL,
-            'timeout'  => 2.0,
-            'headers' => ['Accept' => 'application/json']
+            'base_uri' => static::URL,
+            'timeout'  => static::TIMEOUT,
+            'headers' => static::HEADERS
         ]);
     }
 
