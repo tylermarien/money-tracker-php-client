@@ -16,7 +16,11 @@
     ],
     "autoload": {
         "psr-4": {
-            "MoneyTrackerPhpClient\\": "src/",
+            "MoneyTrackerPhpClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "MoneyTrackerPhpClient\\Tests\\": "tests/"
         }
     }
